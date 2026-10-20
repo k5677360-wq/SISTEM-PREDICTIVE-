@@ -1,13 +1,19 @@
-"""En el servidor aislado: python3 RESTAURAR_IMAGENES.py /ruta/imagenes-descifradas /ruta/private"""
+"""En servidor nuevo: python3 RESTAURAR_IMAGENES.py /ruta/imagenes-descifradas /ruta/private /ruta/supplement"""
 import sys,pathlib,json,subprocess,re
 images=pathlib.Path(sys.argv[1])
 private=pathlib.Path(sys.argv[2])
 mapping=json.loads((private/'image-map.json').read_text())
 inventory=json.loads((private/'containers.json').read_text())
+extra=pathlib.Path(sys.argv[3]) if len(sys.argv)>3 else None
+if extra:
+    additional=json.loads((extra/'monitoring-containers.json').read_text())
+    inventory+=additional
+    mapping += [{'id':c['Image']} for c in additional]
 loaded={}
 for original in sorted({x['id'] for x in mapping}):
     suffix=original.split(':')[1]+'.tar.gz'
     candidates=[images/suffix,images/('image-'+suffix)]
+    if extra: candidates.append(extra/'images'/suffix)
     archive=next((p for p in candidates if p.exists()),None)
     if archive is None: raise SystemExit('Falta imagen '+suffix)
     result=subprocess.check_output(['docker','load','-i',str(archive)],text=True)
