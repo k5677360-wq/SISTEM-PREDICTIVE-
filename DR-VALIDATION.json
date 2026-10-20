@@ -1,0 +1,18 @@
+{
+  "time_utc": "2026-10-20T18:41:59.503038+00:00",
+  "running_services": 23,
+  "internal_networks": 9,
+  "published_ports": 0,
+  "motor_paused": true,
+  "connected_advisors": 0,
+  "calls_preserved": 8205,
+  "http_statuses": [
+    200,
+    200,
+    200,
+    200
+  ],
+  "https_certificate_verified": true,
+  "nginx_config": "passed",
+  "limits": "No valida llamadas reales, audio RTP ni autorizacion del proveedor para una IP nueva"
+}
