@@ -1,3 +1,5 @@
+> Validación inicial. La prueba final de reconstrucción está en [VALIDACION-DR.md](VALIDACION-DR.md).
+
 # Validación del respaldo — 20 de octubre de 2026
 
 - 21 adjuntos en GitHub: núcleo cifrado, 19 imágenes Docker cifradas y SHA256SUMS.
