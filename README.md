@@ -1,56 +1,22 @@
-# Respaldo recuperable del predictivo
+# SISTEM PREDICTIVE — Recuperación en otro servidor
 
-Respaldo del 20 de octubre de 2026. Los archivos están **cifrados** en Releases.
-Las credenciales, bases de datos y código privado no se publican en texto plano.
-La clave RECOVERY.key se entrega aparte y NO está en GitHub. Consérvela fuera del servidor.
+Paquete cifrado del 20/10/2026: código, bases, configuración activa, certificados,
+22 imágenes Docker para 23 servicios y herramientas para reconstruir redes y volúmenes.
+**Sin grabaciones de llamadas.**
 
-Incluye código, configuraciones, interfaz CRM, telefonía manual, TURN, autenticación,
-predictivo técnico, exportaciones MariaDB/PostgreSQL, configuraciones Asterisk activas,
-certificados TLS, identidad del puente y las imágenes Docker indicadas en el manifiesto.
-Los archivos application-files incluyen fuentes, Dockerfiles y archivos de despliegue.
+## Descarga y procedimiento
 
-Excluye grabaciones de llamadas, volúmenes de audio grabado, registros históricos
-de Asterisk, cachés, node_modules y metadatos .git. Los sonidos de sistema se conservan.
-Los metadatos de grabaciones en las bases de datos se conservan; sus audios no.
+[Descargar los archivos de la release](../../releases/tag/backup-20261020).
+El respaldo está en los adjuntos de Releases, no en el ZIP automático Source code.
+Usar core.tar.gpg, los 19 image-*.gpg, dr-supplement-v2.tar.gpg,
+recovery-tools.zip y DR-SHA256SUMS. La clave RECOVERY.key se guarda aparte.
 
-## Recuperación
+**[Instrucciones completas para otro servidor](RECUPERACION.md)**
 
-1. Descargar TODOS los adjuntos de la release y SHA256SUMS. Ejecutar `sha256sum -c SHA256SUMS`.
-2. En un servidor AISLADO, descifrar cada archivo:
-   `gpg --batch --pinentry-mode loopback --passphrase-file /ruta/RECOVERY.key --output core.tar --decrypt core.tar.gpg`
-   Repetir para cada imagen, utilizando como salida su nombre sin `.gpg`.
-3. Extraer core.tar en un directorio privado vacío. Verificar `private/SHA256SUMS`
-   desde el directorio private. Consultar containers.json, image-map.json y networks.json.
-4. Ejecutar RESTAURAR_IMAGENES.py con la carpeta de imágenes descifradas y private.
-   Genera etiquetas locales y overrides Compose sin iniciar servicios. Usar esos overrides
-   junto al compose original, con pull_policy=never y sin --build. Docker puede cambiar
-   el ID al importar; no asumir que coincide con el ID del servidor de origen.
-   Las referencias @sha256 del proveedor se sustituyen mediante el override local.
-5. Extraer application-files.tar.gz bajo /home/deploy del servidor de recuperación.
-   Restituir TLS y la identidad del puente con permisos privados, según el inventario.
-   Restaurar los directorios Asterisk activos en sus destinos documentados.
-6. Crear redes y volúmenes indicados en el inventario y usar los compose incluidos.
-   Iniciar SOLO MariaDB y PostgreSQL, sin puertos públicos y sin servicios de marcación.
-   Importar mariadb.sql con el cliente MariaDB y postgres.sql con psql como administrador.
-   Usar las mismas versiones de imágenes, revisar roles existentes y errores de importación.
-   Esperar el arranque definitivo de MariaDB por TCP (el servidor temporal inicial no basta).
-   Importar con --binary-mode=1 y ejecutar FLUSH PRIVILEGES al terminar, antes de
-   reconectar con las credenciales originales restauradas. En PostgreSQL inicializar
-   con un administrador temporal distinto de los roles de origen, por ejemplo recovery_admin.
-7. Antes de iniciar APIs/motor, establecer motor_paused=1 en la tabla de configuración
-   que usa motor.js. Confirmar la tabla/columnas en el código restaurado.
-   NO iniciar campañas automáticamente.
-8. Revisar IP pública, DNS, TLS, firewall, redes, credenciales y autorización del proveedor
-   Gino para la IP de recuperación. Las autorizaciones externas no se restauran desde Git.
-9. Validar login, salas independientes, llamadas manuales, audio bidireccional,
-   AMD, derivación, tipificación y grabaciones nuevas con números de prueba autorizados.
-   Solo entonces habilitar tráfico con autorización del responsable.
+**[Pruebas de recuperación realizadas](VALIDACION-DR.md)**
 
-## Límites de la copia
-
-Exportación online sin bloquear tablas ni detener servicios. InnoDB usa snapshot;
-VICIdial contiene MyISAM/MEMORY, por lo que no se garantiza una instantánea transaccional
-común entre todas las tablas ni entre MariaDB y PostgreSQL. Había cero llamadas en la
-comprobación inicial. No es una imagen completa del sistema operativo.
-La integridad criptográfica/descifrado no equivale a una prueba operativa integral.
-Consultar VALIDACION.md para las comprobaciones efectivamente realizadas.
+Se ejecutó una reconstrucción desde cero en redes aisladas: 23 servicios arrancados,
+bases restauradas, HTTP/HTTPS correctos y certificado validado. El motor quedó pausado.
+Al migrar deben actualizarse IP/DNS, firewall y autorización del proveedor.
+Las llamadas reales/audio desde una IP nueva requieren una prueba posterior.
+No es una imagen del sistema operativo ni incluye aplicaciones independientes ajenas al predictivo.
