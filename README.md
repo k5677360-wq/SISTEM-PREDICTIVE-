@@ -21,8 +21,11 @@ Los metadatos de grabaciones en las bases de datos se conservan; sus audios no.
    Repetir para cada imagen, utilizando como salida su nombre sin `.gpg`.
 3. Extraer core.tar en un directorio privado vacío. Verificar `private/SHA256SUMS`
    desde el directorio private. Consultar containers.json, image-map.json y networks.json.
-4. Cargar las imágenes con `docker load -i imagen.tar.gz`. Restituir sus etiquetas
-   originales usando image-map.json (`docker tag sha256:ID etiqueta`).
+4. Ejecutar RESTAURAR_IMAGENES.py con la carpeta de imágenes descifradas y private.
+   Genera etiquetas locales y overrides Compose sin iniciar servicios. Usar esos overrides
+   junto al compose original, con pull_policy=never y sin --build. Docker puede cambiar
+   el ID al importar; no asumir que coincide con el ID del servidor de origen.
+   Las referencias @sha256 del proveedor se sustituyen mediante el override local.
 5. Extraer application-files.tar.gz bajo /home/deploy del servidor de recuperación.
    Restituir TLS y la identidad del puente con permisos privados, según el inventario.
    Restaurar los directorios Asterisk activos en sus destinos documentados.
@@ -30,6 +33,10 @@ Los metadatos de grabaciones en las bases de datos se conservan; sus audios no.
    Iniciar SOLO MariaDB y PostgreSQL, sin puertos públicos y sin servicios de marcación.
    Importar mariadb.sql con el cliente MariaDB y postgres.sql con psql como administrador.
    Usar las mismas versiones de imágenes, revisar roles existentes y errores de importación.
+   Esperar el arranque definitivo de MariaDB por TCP (el servidor temporal inicial no basta).
+   Importar con --binary-mode=1 y ejecutar FLUSH PRIVILEGES al terminar, antes de
+   reconectar con las credenciales originales restauradas. En PostgreSQL inicializar
+   con un administrador temporal distinto de los roles de origen, por ejemplo recovery_admin.
 7. Antes de iniciar APIs/motor, establecer motor_paused=1 en la tabla de configuración
    que usa motor.js. Confirmar la tabla/columnas en el código restaurado.
    NO iniciar campañas automáticamente.
