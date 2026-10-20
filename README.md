@@ -6,7 +6,7 @@ Paquete cifrado del 20/10/2026: código, bases, configuración activa, certifica
 
 ## Descarga y procedimiento
 
-[Descargar los archivos de la release](../../releases/tag/backup-20261020).
+[Descargar los archivos de la release](https://github.com/k5677360-wq/SISTEM-PREDICTIVE-/releases/tag/backup-20261020).
 El respaldo está en los adjuntos de Releases, no en el ZIP automático Source code.
 Usar core.tar.gpg, los 19 image-*.gpg, dr-supplement-v2.tar.gpg,
 recovery-tools.zip y DR-SHA256SUMS. La clave RECOVERY.key se guarda aparte.
